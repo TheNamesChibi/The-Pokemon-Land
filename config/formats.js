@@ -2236,6 +2236,128 @@ let Formats = [
 		defaultLevel: 100,
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 	},
+	{
+		section: "The Pokémon Land",
+		column: 1,
+	},
+	{
+		name: "[Gen 8] Super Cast Bros",
+		desc: "Fight with a random team of Pokemon made by KrisTami.",
+
+		mod: 'scb',
+		team: 'randomSCB',
+		ruleset: ['HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod'],
+		onBegin() {
+			this.add('raw|SUPER CAST BROS!!');
+			this.add('message', 'GET READY FOR BATTLE!');
+            this.add(`raw|<div class='broadcast-red'><b>Got to know what the custom moves, items and abilities do?<br />Use <code>/details [move/item/ability name]</code> to find out!</b></div>`);
+            this.add(`raw|<div class='broadcast-blue'><b>You can't Dynamax if your team has a Mega Stone or a Z-Crystal!</b></div>`);
+        if (this.teamGenerator.allXfix) this.add(`c|~KrisTami|Holy smokes! I left the xfix sets at DeviantART by an accident!`);
+        	// if you have a mega or z, you can't dynamax
+			for (const side of this.sides) {
+				let canMegaOrZ = false;
+				for (const pokemon of side.pokemon) {
+					const item = this.dex.getItem(pokemon.item);
+					if (item.megaStone || item.zMove) {
+						canMegaOrZ = true;
+						break;
+					}
+				}
+				if (canMegaOrZ) {
+					for (const pokemon of side.pokemon) {
+						pokemon.canDynamax = false;
+					}
+				}
+			}
+		},
+		onSwitchInPriority: 100,
+		onSwitchIn(pokemon) {
+			let name = toID(pokemon.illusion ? pokemon.illusion.name : pokemon.name);
+			if (this.dex.getTemplate(name).exists || name === 'rage') {
+				// Certain pokemon have volatiles named after their speciesid
+				// To prevent overwriting those, and to prevent accidentaly leaking
+				// that a pokemon is on a team through the onStart even triggering
+				// at the start of a match, users with pokemon names will need their
+				// statuse's to end in "user".
+				name = /** @type {ID} */(name + 'user');
+			}
+			// Add the mon's status effect to it as a volatile.
+			let status = this.dex.getEffect(name);
+			if (status && status.exists) {
+				pokemon.addVolatile(name, pokemon);
+			}
+		},
+	},
+	{
+		name: "[Gen 8] Super Free-For-All!",
+
+		mod: 'freeforall',
+		maxLevel: 99999,
+		defaultLevel: 100,
+		searchShow: false,
+		debug: true,
+		onBegin: function () {
+			this.add('raw|<h1>Super Free-For-All!</h1>');
+			this.add('raw|<h2>Let\'s Go!</h2>');
+			this.trunc = n => Math.trunc(n);
+			// if you have a mega or z, you can't dynamax
+			for (const side of this.sides) {
+				let canMegaOrZ = false;
+				for (const pokemon of side.pokemon) {
+					const item = this.dex.getItem(pokemon.item);
+					if (item.megaStone || item.zMove) {
+						canMegaOrZ = true;
+						break;
+					}
+				}
+				if (canMegaOrZ) {
+					for (const pokemon of side.pokemon) {
+						pokemon.canDynamax = false;
+					}
+				}
+			}
+		},
+		onSwitchInPriority: 100,
+		onSwitchIn(pokemon) {
+			let name = toID(pokemon.illusion ? pokemon.illusion.name : pokemon.name);
+			if (this.dex.getTemplate(name).exists || name === 'rage') {
+				// Certain pokemon have volatiles named after their speciesid
+				// To prevent overwriting those, and to prevent accidentaly leaking
+				// that a pokemon is on a team through the onStart even triggering
+				// at the start of a match, users with pokemon names will need their
+				// statuse's to end in "user".
+				name = /** @type {ID} */(name + 'user');
+			}
+			// Add the mon's status effect to it as a volatile.
+			let status = this.dex.getEffect(name);
+			if (status && status.exists) {
+				pokemon.addVolatile(name, pokemon);
+			}
+		},
+		
+	  onAfterMega: function (pokemon) {
+      this.add('raw|Mega Evolution activate!');
+		},
+		
+		teamLength: {
+			validate: [1, 100],
+			battle: 100,
+		},
+     },
+	{
+		name: "[Gen 7] Pure Hackmons",
+		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
+
+		mod: 'gen7',
+		ruleset: ['-Nonexistent', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause'],
+	},
+	{
+		name: "[Gen 8] Pure Hackmons",
+		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
+
+		mod: 'gen8',
+		ruleset: ['-Nonexistent', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause'],
+	},
 ];
 
 exports.Formats = Formats;
